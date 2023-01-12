@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Password Check Example</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="passthecheck.min.js"></script>
+        <style>
+            html,body{
+                margin: 0;
+                padding: 0;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background:#333;
+                color:white;
+            }
+        </style>
+    </head>
+    <body>
+        <div style="height:100vh; width:300px; max-width:80vw; margin:auto; display:flex; justify-content: center; align-items: center;flex-direction: column; overflow-y:auto">
+            <h1>Password Strength Checker</h1>
+            <input style="width:100%; font:inherit; padding:10px; box-sizing:border-box" id="password" placeholder="Enter a password">
+            <p id="errors" style="color:tomato"></p>
+            <p id="warnings" style="color:orange"></p>
+            <button id="score" style="font:inherit; padding:10px" disabled>Score: 0%</button>
+            <p>
+                This password strength checker uses PassTheCheck.js and the Have I Been Pwned API. Your password is not sent over the internet, but the first 5 characters of a one-way hash of the password is.  There is no way to guess your password based on that one-way hash.
+            </p>
+            <p>
+                Check out the code on GitHub: <a style="color:inherit" href="https://github.com/maxpelic/PassTheCheck">github.com/maxpelic/PassTheCheck</a>
+            </p>
+        </div>
+        <script>
+            document.getElementById("password").addEventListener("keyup", async function(){
+                let result = await checkPassword(this.value, [
+                    {
+                        type:"pwnd",
+                        message:"Yikes! That password has appeared in a data breach before, so someone on the internet may have access to it. Try making some changes or choose a different password.",
+                        required:true
+                    },
+                    {
+                        type:"length",
+                        value:8,
+                        message:"Password should be at least 8 characters long.",
+                        required:true
+                    },
+                    {
+                        type:"length",
+                        value:12,
+                        message:"It's a good idea to have at least 12 characters in your password.",
+                        weight:2
+                    },
+                    {
+                        type:"upper",
+                        value:1,
+                        message:"Including an uppercase letter in your password would improve it's security."
+                    },
+                    {
+                        type:"lower",
+                        value:1,
+                        message:"Although having symbols, numbers, and uppercase letters in your password is important, maybe include some lowercase letters.",
+                        weight:0
+                    },
+                    {
+                        type:"symbol",
+                        value:2,
+                        message:"Include a couple symbols in your password!",
+                        required:true
+                    },
+                    {
+                        type:"numeric",
+                        value:1,
+                        message:"Include a number in your password to make it more secure!",
+                        required:true
+                    }
+                ]);
+
+                if(result.passed) document.getElementById("score").removeAttribute("disabled");
+                else document.getElementById("score").setAttribute("disabled", true);
+
+                document.getElementById("score").textContent = "Score: " + Math.round(result.strengthPercentage * 100) + "%";
+                
+                document.getElementById("errors").innerHTML = result.errors.join("<br><br>");
+                document.getElementById("warnings").innerHTML = result.warnings.join("<br><br>");
+            });
+        </script>
+    </body>
+</html>
