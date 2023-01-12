@@ -50,6 +50,7 @@ var _ = function (selector) {
     return new underscore(selector);
 };
 
+/* Convert an object to a URL encoded string */
 _.objToURL = object => {
     if(!object) return "";
     let strings = [];
@@ -58,6 +59,7 @@ _.objToURL = object => {
     return strings.join("&");
 };
 
+/* send a post request to a server */
 _.post = (url, data) => {
     "use strict";
     let x = new XMLHttpRequest(), r = {then:function(t){this.tfunction = t; return this},error:function(e){this.eFunction=e; return this}};
@@ -73,6 +75,7 @@ _.post = (url, data) => {
     return r;
 };
 
+/* send a get request to a server */
 _.get = url => {
     "use strict";
     let x = new XMLHttpRequest(), r = {then:function(t){this.tfunction = t; return this},error:function(e){this.eFunction=e; return this}};
@@ -87,6 +90,7 @@ _.get = url => {
     return r;
 };
 
+/* create html elements, used by the constructor function */
 _.createElements = html =>{
     "use strict";
     let d = document.createElement('div');
@@ -94,6 +98,7 @@ _.createElements = html =>{
     return Array.prototype.slice.call(d.children);
 };
 
+/* get the window hash as an object */
 _.hash = () =>{
     let parts = window.location.hash.substr(1).split("&"), result = {};
     for(let i = 0; i < parts.length; i++){
@@ -103,6 +108,7 @@ _.hash = () =>{
     return result;
 };
 
+/* loop through all elements using the supplied function */
 underscore.prototype.each = function (f) {
     "use strict";
     for(let i in this.elements)
@@ -110,6 +116,7 @@ underscore.prototype.each = function (f) {
     return this;
 };
 
+/* add event listeners to the elements, separated by spaces */
 underscore.prototype.event = function (name, f) {
     "use strict";
     name = name.trim().split(" ");
@@ -118,6 +125,7 @@ underscore.prototype.event = function (name, f) {
     return this;
 };
 
+/* make an element tabbable and enter and space key triggered */
 underscore.prototype.makebutton = function () {
     "use strict";
     this.attribute("tabindex", "0").attribute("role", "button");
@@ -130,6 +138,7 @@ underscore.prototype.makebutton = function () {
     return this;
 };
 
+/* add or remove a class from the elements */
 underscore.prototype.class = function (name, toggle){
     "use strict";
     this.each(e=>{
@@ -141,12 +150,15 @@ underscore.prototype.class = function (name, toggle){
     return this;
 };
 
+/* get or set the value of an element */
+/* sets the lastval attribute to the supplied value and marks them as not modified by the user */
 underscore.prototype.value = function (value){
     if(!this.elements.length) return undefined;
     if(value !== undefined) this.each(e=>{e.value=value;e.setAttribute('lastval', value);e.classList.remove("modified")});
     return value !== undefined ? this : this.elements[0].value;
 };
 
+/* appends the supplied element(s) */
 underscore.prototype.append = function(element){
     if(arguments.length > 1){
         for(let i = 0; i < arguments.length; i++)
@@ -161,6 +173,7 @@ underscore.prototype.append = function(element){
     return this;
 };
 
+/* adds the supplied element(s) to the start */
 underscore.prototype.prepend = function(element){
     if(arguments.length > 1){
         for(let i = 0; i < arguments.length; i++)
@@ -175,6 +188,7 @@ underscore.prototype.prepend = function(element){
     return this;
 };
 
+/* adds the supplied element(s) after the element */
 underscore.prototype.after = function(element){
     if(arguments.length > 1){
         for(let i = 0; i < arguments.length; i++)
@@ -189,6 +203,7 @@ underscore.prototype.after = function(element){
     return this;
 };
 
+/* adds the supplied element(s) before the element */
 underscore.prototype.before = function(element){
     if(arguments.length > 1){
         for(let i = 0; i < arguments.length; i++)
@@ -203,6 +218,7 @@ underscore.prototype.before = function(element){
     return this;
 };
 
+/* gets or sets the element's html content */
 underscore.prototype.html = function(html){
     if(this.elements.length && html === undefined){
         return this.elements[0].innerHTML;
@@ -211,12 +227,15 @@ underscore.prototype.html = function(html){
     return this;
 };
 
+/* gets or sets the element's text content */
 underscore.prototype.text = function(text){
     if(text === undefined) return this.elements[0] ? this.elements[0].textContent : "";
     this.each(e=>e.textContent = text);
     return this;
 };
 
+/* gets the child elements with an option selector filter */
+/* using a selector will get any decedents, while no selector only gets immediate children */
 underscore.prototype.children = function(selector){
     let r = new underscore();
     this.each(e=>{
@@ -228,6 +247,7 @@ underscore.prototype.children = function(selector){
     return r;
 };
 
+/* gets the parent elements */
 underscore.prototype.parents = function(){
     let r = new underscore();
     this.each(e=>{
@@ -237,15 +257,21 @@ underscore.prototype.parents = function(){
     return r;
 };
 
+/* replaces the elements with supplied element[s] */
 underscore.prototype.replace = function(element){
     if(arguments.length > 1){
         for(let i = 0; i < arguments.length; i++)
             this.after(arguments[i]);
+        this.remove();
+        return this;
+    }
+    if(element.us){
+        this.after(element);
+        this.remove();
         return this;
     }
     this.each(e=>{
-        if(element.us) element.each(c=>e.parentElement.replaceChild(c, e));
-        else if("string" === typeof element){
+        if("string" === typeof element){
             e.parentElement.insertAdjacentHTML("beforeend", element);
             e.parentElement.removeChild(e);
         }
@@ -254,6 +280,7 @@ underscore.prototype.replace = function(element){
     return this;
 };
 
+/* remove elements from DOM */
 underscore.prototype.remove = function(){
     this.each(e=>{
         e.parentElement && e.parentElement.removeChild(e);
@@ -261,6 +288,7 @@ underscore.prototype.remove = function(){
     return this;
 };
 
+/* get or set an attribute */
 underscore.prototype.attribute = function(name, value){
     if(undefined === value) return this.elements[0] ? this.elements[0].getAttribute(name) : undefined;
     this.each(e=>{
@@ -269,6 +297,7 @@ underscore.prototype.attribute = function(name, value){
     return this;
 };
 
+/* get or set the href attribute */
 underscore.prototype.href = function(value){
     if(undefined === value) return this.elements[0] ? this.elements[0].href : undefined;
     this.each(e=>{
@@ -277,16 +306,19 @@ underscore.prototype.href = function(value){
     return this;
 };
 
+/* focus on the element */
 underscore.prototype.focus = function(){
     this.each(e=>e.focus());
     return this;
 };
 
+/* click the element */
 underscore.prototype.click = function(){
     this.each(e=>e.click());
     return this;
 };
 
+/* trigger an event listener */
 underscore.prototype.trigger = function(name){
     this.each(e=>{
         let evt = new Event(name);
@@ -295,6 +327,7 @@ underscore.prototype.trigger = function(name){
     return this;
 };
 
+/* get or set the style attribute using css name formats */
 underscore.prototype.style = function(name, value){
     //format name if needed
     if(name.split('-').length > 1){
@@ -311,6 +344,7 @@ underscore.prototype.style = function(name, value){
     return this;
 };
 
+/* check if an element exists in the DOM */
 underscore.prototype.exists = function(){
     let exists = false;
     this.each(e=>{
